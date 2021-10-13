@@ -1,0 +1,21 @@
+go.property("distance", 100)
+go.property("axis", 0) -- 0 for horizontal / x-axis, 1 for vertical / y-axis
+go.property("speed", 15)
+
+local PLAYER = hash("player")
+
+function init(self)
+	-- set the direction of travel
+	local to = 0
+	local anim_dir = "position.x"
+	local pos = go.get_position()
+	if self.axis == 0 then
+		to = pos.x + self.distance
+	elseif self.axis == 1 then
+		to = pos.y + self.distance
+		anim_dir = "position.y"
+	end
+
+	local duration = self.distance / self.speed
+	go.animate(".", anim_dir, go.PLAYBACK_LOOP_PINGPONG, to, go.EASING_INOUTQUAD, duration)
+end

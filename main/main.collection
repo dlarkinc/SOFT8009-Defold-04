@@ -13,6 +13,14 @@ instances {
     z: 0.0
     w: 1.0
   }
+  component_properties {
+    id: "bee"
+    properties {
+      id: "distance"
+      value: "25.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+  }
   scale3 {
     x: 1.0
     y: 1.0
@@ -39,12 +47,40 @@ instances {
     z: 1.0
   }
 }
+instances {
+  id: "movingplatform"
+  prototype: "/main/movingplatform.go"
+  position {
+    x: 542.0
+    y: 102.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  component_properties {
+    id: "movingplatform"
+    properties {
+      id: "distance"
+      value: "100.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
 collection_instances {
   id: "player"
   collection: "/main/player.collection"
   position {
-    x: 280.0
-    y: 119.0
+    x: 458.0
+    y: 168.0
     z: 1.0
   }
   rotation {
