@@ -18,7 +18,7 @@ local RECOIL = 500
 -- pre-hashing ids improves performance
 local CONTACT_POINT_RESPONSE = hash("contact_point_response")
 local GROUND = hash("ground")
---local MOVING_PLATFORM = hash("movingplatform")
+local MOVING_PLATFORM = hash("movingplatform")
 local RESPAWMN = hash("respawn")
 local ENEMY = hash("enemy")
 
@@ -45,8 +45,6 @@ function init(self)
 
 	-- spawn position
 	self.spawn_position = go.get_position()
-	pprint(self.spawn_position)
-	print(self.parent_id)
 	-- player velocity
 	self.velocity = vmath.vector3(0, 0, 0)
 	-- which direction the player is facing
@@ -60,6 +58,9 @@ function init(self)
 	self.previous_ground_contact = true
 	-- the currently playing animation
 	self.anim = nil
+
+	self.start_time = socket.gettime()
+	self.time_elapsed = 0.0
 end
 
 local function play_animation(self, anim)
@@ -140,6 +141,9 @@ function update(self, dt)
 	self.correction = vmath.vector3()
 	self.ground_contact = false
 	self.wall_contact = false
+
+	self.time_elapsed = socket.gettime() - self.start_time
+	msg.post("/hud#timer", "update_time_elapsed", { seconds = self.time_elapsed })
 end
 
 local function walk(self, direction)
@@ -180,6 +184,8 @@ local function handle_obstacle_contact(self, normal, distance)
 	-- stop vertical movement
 	if normal.y > 0.7 then
 		if not self.previous_ground_contact then
+			-- add some particles 
+			--particlefx.play("#dust")
 			-- reset any "squish" that may have been applied
 			go.set("visuals", "scale", 1)
 			self.double_jump = false
@@ -199,6 +205,8 @@ function on_message(self, message_id, message, sender)
 	if message_id == CONTACT_POINT_RESPONSE then
 		-- check that the object is something we consider an obstacle
 		if message.group == GROUND then
+			handle_obstacle_contact(self, message.normal, message.distance)
+		elseif message.group == MOVING_PLATFORM then 
 			-- reparent so that the player moves with the platform
 			msg.post(".", "set_parent", { parent_id = message.other_id })
 			handle_obstacle_contact(self, message.normal, message.distance)
@@ -231,6 +239,8 @@ local function jump(self)
 		self.velocity.y = self.velocity.y + DOUBLEJUMP_TAKEOFF_SPEED
 		self.double_jump = true
 	end
+	-- add some particles 
+	particlefx.play("#jump")
 end
 
 local function abort_jump(self)
