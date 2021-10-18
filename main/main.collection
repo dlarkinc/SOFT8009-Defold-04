@@ -100,7 +100,7 @@ instances {
   prototype: "/main/slime.go"
   position {
     x: 722.0
-    y: 104.0
+    y: 142.0
     z: 0.0
   }
   rotation {
@@ -115,12 +115,32 @@ instances {
     z: 1.0
   }
 }
+instances {
+  id: "endoflevel"
+  prototype: "/main/endoflevel.go"
+  position {
+    x: 772.0
+    y: 115.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 2.4
+    y: 2.4
+    z: 1.0
+  }
+}
 collection_instances {
   id: "player"
   collection: "/main/player.collection"
   position {
-    x: 259.0
-    y: 123.0
+    x: 720.0
+    y: 104.0
     z: 1.0
   }
   rotation {
@@ -266,6 +286,21 @@ embedded_instances {
   data: "components {\n"
   "  id: \"timer\"\n"
   "  component: \"/main/timer.gui\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "components {\n"
+  "  id: \"endtime\"\n"
+  "  component: \"/main/endtime.gui\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"

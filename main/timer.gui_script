@@ -2,12 +2,6 @@ require "lib.round"
 
 local UPDATE_TIME_ELAPSED = hash("update_time_elapsed")
 
-function init(self)
-	self.timer = 0.0
-	self.time_displayed = 0.0
-	self.timer_node = gui.get_node("timer")
-end
-
 function on_message(self, message_id, message, sender)
 	if message_id == UPDATE_TIME_ELAPSED then
 		-- set the timer gui node

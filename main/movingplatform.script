@@ -2,8 +2,6 @@ go.property("distance", 100)
 go.property("axis", 0) -- 0 for horizontal / x-axis, 1 for vertical / y-axis
 go.property("speed", 15)
 
-local PLAYER = hash("player")
-
 function init(self)
 	-- set the direction of travel
 	local to = 0

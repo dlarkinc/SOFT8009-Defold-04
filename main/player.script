@@ -17,10 +17,12 @@ local RECOIL = 500
 
 -- pre-hashing ids improves performance
 local CONTACT_POINT_RESPONSE = hash("contact_point_response")
+local TRIGGER_RESPONSE = hash("trigger_response")
 local GROUND = hash("ground")
 local MOVING_PLATFORM = hash("movingplatform")
 local RESPAWMN = hash("respawn")
 local ENEMY = hash("enemy")
+local END_OF_LEVEL = hash("endoflevel")
 
 local LEFT = hash("left")
 local RIGHT = hash("right")
@@ -33,7 +35,6 @@ local ANIM_JUMP = hash("player_jump")
 local ANIM_FALL = hash("player_fall")
 
 local SPRITE = "visuals#sprite"
-
 
 function init(self)
 	-- this lets us handle input in this script
@@ -61,6 +62,9 @@ function init(self)
 
 	self.start_time = socket.gettime()
 	self.time_elapsed = 0.0
+
+	self.standing_on = nil
+	--self.playing_loco_sound = false
 end
 
 local function play_animation(self, anim)
@@ -152,6 +156,10 @@ local function walk(self, direction)
 	end
 	if self.ground_contact then
 		self.velocity.x = MAX_GROUND_SPEED * direction
+		-- if not self.playing_loco_sound then
+		-- 	sound.play("#step_sound", {delay = 0, gain = 0.5, pan = 0, speed = 1.0})
+		-- 	self.playing_loco_sound = false
+		-- end
 	else
 		-- move slower in the air
 		self.velocity.x = MAX_AIR_SPEED * direction
@@ -201,19 +209,32 @@ local function handle_obstacle_contact(self, normal, distance)
 end
 
 function on_message(self, message_id, message, sender)
+	--debug 
+	if message_id == TRIGGER_RESPONSE then
+		print("triggered")
+	end
+
+	
 	-- check if we received a contact point message
 	if message_id == CONTACT_POINT_RESPONSE then
 		-- check that the object is something we consider an obstacle
 		if message.group == GROUND then
 			handle_obstacle_contact(self, message.normal, message.distance)
+			self.standing_on = message.group
 		elseif message.group == MOVING_PLATFORM then 
 			-- reparent so that the player moves with the platform
 			msg.post(".", "set_parent", { parent_id = message.other_id })
 			handle_obstacle_contact(self, message.normal, message.distance)
+			self.standing_on = message.group
 		elseif message.group == RESPAWMN or message.group == ENEMY then
 			-- remove parent to ensure we can move when respawning
 			msg.post(".", "set_parent", { parent_id = nil })
 			go.set_position(self.spawn_position)
+		end
+	elseif message_id == TRIGGER_RESPONSE then
+		if message.group == END_OF_LEVEL then
+			self.finish_time = socket.gettime() - self.start_time
+			msg.post("/hud#endtime", "update_finish_text", { seconds = self.finish_time })
 		end
 	end
 end
@@ -231,6 +252,7 @@ local function jump(self)
 		self.velocity.y = JUMP_TAKEOFF_SPEED
 		-- play animation
 		play_animation(self, ANIM_JUMP)
+		sound.play("audio#jump", {delay = 0, gain = 0.5, pan = 0, speed = 1.0})
 		self.ground_contact = false
 		-- compress and stretch player for visual "juice"
 		squish()
@@ -254,7 +276,11 @@ end
 local function fire(self)
 	self.velocity.x = self.velocity.x + RECOIL * -self.direction
 
-	local pos = go.get_position()
+	local pos = nil
+
+	-- get world position just in case we are parented by a moving platform, for e.g.
+	pos = go.get_world_position()
+
 	-- offset the bullet so that it is fired "outside" of the player sprite
 	pos.x = pos.x + 8 * self.direction
 	local id = factory.create("#bulletfactory", pos)
@@ -269,6 +295,7 @@ local function fire(self)
 	go.animate(id, "position.x", go.PLAYBACK_ONCE_FORWARD, to, go.EASING_LINEAR, duration, 0, function()
 		go.delete(id)
 	end)
+	sound.play("audio#laser", {delay = 0, gain = 0.5, pan = 0, speed = 1.0})
 end
 
 function on_input(self, action_id, action)

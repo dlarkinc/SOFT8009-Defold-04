@@ -1,0 +1,9 @@
+local UPDATE_FINISH_TEXT = hash("update_finish_text")
+
+function on_message(self, message_id, message, sender)
+	if message_id == UPDATE_FINISH_TEXT then
+		-- set the timer gui node
+		local endtime_node = gui.get_node("endtime")
+		gui.set_text(endtime_node, message.seconds)
+	end
+end
