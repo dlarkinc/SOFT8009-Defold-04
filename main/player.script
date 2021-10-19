@@ -63,7 +63,7 @@ function init(self)
 	self.start_time = socket.gettime()
 	self.time_elapsed = 0.0
 
-	self.standing_on = nil
+	--self.standing_on = nil
 	--self.playing_loco_sound = false
 end
 
@@ -209,23 +209,17 @@ local function handle_obstacle_contact(self, normal, distance)
 end
 
 function on_message(self, message_id, message, sender)
-	--debug 
-	if message_id == TRIGGER_RESPONSE then
-		print("triggered")
-	end
-
-	
 	-- check if we received a contact point message
 	if message_id == CONTACT_POINT_RESPONSE then
 		-- check that the object is something we consider an obstacle
 		if message.group == GROUND then
 			handle_obstacle_contact(self, message.normal, message.distance)
-			self.standing_on = message.group
+			--self.standing_on = message.group
 		elseif message.group == MOVING_PLATFORM then 
 			-- reparent so that the player moves with the platform
 			msg.post(".", "set_parent", { parent_id = message.other_id })
 			handle_obstacle_contact(self, message.normal, message.distance)
-			self.standing_on = message.group
+			--self.standing_on = message.group
 		elseif message.group == RESPAWMN or message.group == ENEMY then
 			-- remove parent to ensure we can move when respawning
 			msg.post(".", "set_parent", { parent_id = nil })
