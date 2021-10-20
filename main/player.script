@@ -64,6 +64,7 @@ function init(self)
 
 	self.start_time = socket.gettime()
 	self.time_elapsed = 0.0
+	self.time_set = false
 
 	--self.standing_on = nil
 	--self.playing_loco_sound = false
@@ -150,8 +151,10 @@ function update(self, dt)
 	self.ground_contact = false
 	self.wall_contact = false
 
-	self.time_elapsed = socket.gettime() - self.start_time
-	msg.post("/hud#timer", "update_time_elapsed", { seconds = self.time_elapsed })
+	if not self.time_set then
+		self.time_elapsed = socket.gettime() - self.start_time
+		msg.post("/hud#timer", "update_time_elapsed", { seconds = self.time_elapsed })
+	end
 end
 
 local function walk(self, direction)
@@ -212,6 +215,12 @@ local function handle_obstacle_contact(self, normal, distance)
 	end
 end
 
+local function http_result(self, _, response)
+	print(response.status)
+	print(response.response)
+	pprint(response.headers)
+end
+
 function on_message(self, message_id, message, sender)
 	-- check if we received a contact point message
 	if message_id == CONTACT_POINT_RESPONSE then
@@ -230,9 +239,11 @@ function on_message(self, message_id, message, sender)
 			go.set_position(self.spawn_position)
 		end
 	elseif message_id == TRIGGER_RESPONSE then
-		if message.group == END_OF_LEVEL then
+		if message.group == END_OF_LEVEL and not self.time_set then
 			self.finish_time = socket.gettime() - self.start_time
+			self.time_set = true
 			msg.post("/hud#endtime", "update_finish_text", { seconds = self.finish_time })
+			http.request("http://127.0.0.1:5000/id/larkin/time/" .. self.finish_time, "GET", http_result)
 			save_game_data(self.game_data)
 		end
 	end
