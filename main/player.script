@@ -1,5 +1,7 @@
 -- Player logic
 
+require "lib.game_data"
+
 -- these are the tweaks for the mechanics, feel free to change them for a different feeling
 -- max speed right/left
 local MAX_GROUND_SPEED = 100
@@ -65,6 +67,8 @@ function init(self)
 
 	--self.standing_on = nil
 	--self.playing_loco_sound = false
+
+	self.game_data = load_game_data()
 end
 
 local function play_animation(self, anim)
@@ -229,6 +233,7 @@ function on_message(self, message_id, message, sender)
 		if message.group == END_OF_LEVEL then
 			self.finish_time = socket.gettime() - self.start_time
 			msg.post("/hud#endtime", "update_finish_text", { seconds = self.finish_time })
+			save_game_data(self.game_data)
 		end
 	end
 end

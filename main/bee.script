@@ -1,6 +1,6 @@
 go.property("distance", 50)
-
-local SPEED = 10
+go.property("speed", 10)
+--local SPEED = 10
 local DEAD_SPEED = 200
 
 local COLLISION_RESPONSE = hash("collision_response")
@@ -10,7 +10,7 @@ function init(self)
 	-- move up and down
 	local pos = go.get_position()
 	local to = pos.y + self.distance
-	local duration = self.distance / SPEED
+	local duration = self.distance / self.speed
 	go.animate(".", "position.y", go.PLAYBACK_LOOP_PINGPONG, to, go.EASING_INOUTQUAD, duration)
 
 	-- flip sprite
