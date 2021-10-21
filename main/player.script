@@ -70,6 +70,8 @@ function init(self)
 	--self.playing_loco_sound = false
 
 	self.game_data = load_game_data()
+
+	--print(self.game_data.levels[1].elapsed)
 end
 
 local function play_animation(self, anim)
@@ -242,9 +244,16 @@ function on_message(self, message_id, message, sender)
 		if message.group == END_OF_LEVEL and not self.time_set then
 			self.finish_time = socket.gettime() - self.start_time
 			self.time_set = true
-			msg.post("/hud#endtime", "update_finish_text", { seconds = self.finish_time })
-			http.request("http://127.0.0.1:5000/id/larkin/time/" .. self.finish_time, "GET", http_result)
-			save_game_data(self.game_data)
+			local is_new_record = false
+			-- Check for new fastest time
+			if self.finish_time < self.game_data.levels[1].elapsed then
+				is_new_record = true
+				self.game_data.levels[1].elapsed = self.finish_time
+				-- send to remote API for the leaderboard
+				http.request("http://127.0.0.1:5000/id/larkin/time/" .. self.finish_time, "GET", http_result)
+				save_game_data(self.game_data)
+			end
+			msg.post("/hud#endtime", "update_finish_text", { seconds = self.finish_time, is_new_record =  is_new_record})
 		end
 	end
 end

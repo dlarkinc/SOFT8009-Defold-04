@@ -6,6 +6,12 @@ function on_message(self, message_id, message, sender)
 	if message_id == UPDATE_FINISH_TEXT then
 		-- set the timer gui node
 		local endtime_node = gui.get_node("endtime")
-		gui.set_text(endtime_node, "Finish time: " .. round(message.seconds, 4) .. " seconds")
+		local display_text = round(message.seconds, 4) .. " seconds"
+		if message.is_new_record then
+			display_text = "New Record! " .. display_text
+		else
+			display_text = "Finish time: " .. display_text
+		end
+		gui.set_text(endtime_node, display_text)
 	end
 end

@@ -1,4 +1,4 @@
-json = require "lib.myjson"
+json = require "lib.json"
 
 function load_game_data()
 	file = io.open("data/game.json", "r")
